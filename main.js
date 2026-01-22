@@ -9,7 +9,7 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'templates')));
 
 let state = { running: false, sent: 0, logs: [], startTime: null };
-let cfg = { sessionid: "", thread_id: 0, messages: [], delay: 12, cycle: 35, break_sec: 40 };
+let cfg = { username: "", password: "", thread_id: 0, messages: [], delay: 12, cycle: 35, break_sec: 40 };
 
 const DEVICES = [
     { phone_manufacturer: "Google", phone_model: "Pixel 8 Pro", android_version: 15, android_release: "15.0.0", app_version: "323.0.0.46.109" },
@@ -35,8 +35,8 @@ async function bomber() {
     ig.state.userAgent = `Instagram ${device.app_version} Android (34/15.0.0; 480dpi; 1080x2340; ${device.phone_manufacturer}; ${device.phone_model}; raven; raven; en_US)`;
 
     try {
-        ig.state.cookieJar.setCookie(`sessionid=${cfg.sessionid}; Domain=.instagram.com; Path=/`, 'https://www.instagram.com');
-        await ig.account.currentUser();
+        await ig.simulate.preLoginFlow();
+        await ig.account.login(cfg.username, cfg.password);
         log("LOGIN SUCCESS — BOMBING SHURU");
     } catch (e) {
         log(`LOGIN FAILED → ${e.message.substring(0, 80)}`);
@@ -80,16 +80,16 @@ app.post("/start", (req, res) => {
     setTimeout(() => {
         state = { running: true, sent: 0, logs: ["BOMBING STARTED"], startTime: Date.now() };
 
-        cfg.sessionid = (req.body.sessionid || "").trim();
+        cfg.username = (req.body.username || "").trim();
+        cfg.password = (req.body.password || "").trim();
         cfg.thread_id = parseInt(req.body.thread_id || "0");
         cfg.messages = (req.body.messages || "").split("\n").map(m => m.trim()).filter(m => m);
         cfg.delay = parseFloat(req.body.delay || "12");
         cfg.cycle = parseInt(req.body.cycle || "35");
         cfg.break_sec = parseInt(req.body.break_sec || "40");
 
-        log(`CONFIG LOADED — SESSIONID: ${cfg.sessionid.substring(0, 10)}... THREAD: ${cfg.thread_id}`);
-
         bomber();
+        log("THREAD STARTED — WAIT FOR LOGIN");
 
         res.json({ok: true});
     }, 1000);
