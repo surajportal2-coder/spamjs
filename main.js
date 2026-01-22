@@ -35,9 +35,8 @@ async function bomber() {
     ig.state.userAgent = `Instagram ${device.app_version} Android (34/15.0.0; 480dpi; 1080x2340; ${device.phone_manufacturer}; ${device.phone_model}; raven; raven; en_US)`;
 
     try {
-        // Fixed login with sessionid (set cookie)
-        ig.state.sessionCookies = [{ key: 'sessionid', value: cfg.sessionid }];
-        await ig.account.currentUser(); // Check if logged in
+        ig.state.cookieJar.setCookie(`sessionid=${cfg.sessionid}; Domain=.instagram.com; Path=/`, 'https://www.instagram.com');
+        await ig.account.currentUser();
         log("LOGIN SUCCESS — BOMBING SHURU");
     } catch (e) {
         log(`LOGIN FAILED → ${e.message.substring(0, 80)}`);
@@ -88,8 +87,9 @@ app.post("/start", (req, res) => {
         cfg.cycle = parseInt(req.body.cycle || 35);
         cfg.break_sec = parseInt(req.body.break_sec || 40);
 
+        log(`CONFIG LOADED — SESSIONID: ${cfg.sessionid.substring(0, 10)}... THREAD: ${cfg.thread_id}`);
+
         bomber();
-        log("THREAD STARTED — WAIT FOR LOGIN");
 
         res.json({ok: true});
     }, 1000);
