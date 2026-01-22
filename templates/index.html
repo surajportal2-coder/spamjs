@@ -55,10 +55,9 @@ function update(){
 }
 document.getElementById("form").onsubmit = e => {
     e.preventDefault();
-    const fd = new FormData(e.target);
-    fetch("/start", {method: "POST", body: fd}).then(update);
+    fetch("/start", {method: "POST", body: new FormData(e.target)}).then(update);
 };
-setInterval(update, 1500);
+setInterval(update, 2000);
 update();
 </script>
 </body>
