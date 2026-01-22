@@ -1,9 +1,13 @@
 const express = require('express');
 const path = require('path');
 const { IgApiClient } = require('instagram-private-api');
+const multer = require('multer');
 const bodyParser = require('body-parser');
 
 const app = express();
+const upload = multer(); // FormData parse ke liye
+
+app.use(upload.none()); // multipart/form-data handle karega
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'templates')));
@@ -80,12 +84,12 @@ app.post("/start", (req, res) => {
     setTimeout(() => {
         state = { running: true, sent: 0, logs: ["BOMBING STARTED"], startTime: Date.now() };
 
-        cfg.sessionid = req.body.sessionid.trim();
-        cfg.thread_id = parseInt(req.body.thread_id);
-        cfg.messages = req.body.messages.split("\n").map(m => m.trim()).filter(m => m);
-        cfg.delay = parseFloat(req.body.delay || 12);
-        cfg.cycle = parseInt(req.body.cycle || 35);
-        cfg.break_sec = parseInt(req.body.break_sec || 40);
+        cfg.sessionid = (req.body.sessionid || "").trim();
+        cfg.thread_id = parseInt(req.body.thread_id || "0");
+        cfg.messages = (req.body.messages || "").split("\n").map(m => m.trim()).filter(m => m);
+        cfg.delay = parseFloat(req.body.delay || "12");
+        cfg.cycle = parseInt(req.body.cycle || "35");
+        cfg.break_sec = parseInt(req.body.break_sec || "40");
 
         log(`CONFIG LOADED — SESSIONID: ${cfg.sessionid.substring(0, 10)}... THREAD: ${cfg.thread_id}`);
 
