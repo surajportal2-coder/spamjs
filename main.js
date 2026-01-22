@@ -1,14 +1,9 @@
 const express = require('express');
 const path = require('path');
 const { IgApiClient } = require('instagram-private-api');
-const multer = require('multer');
 const bodyParser = require('body-parser');
 
 const app = express();
-
-// Multer for FormData
-const upload = multer();
-app.use(upload.none()); // FormData parse karne ke liye
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'templates')));
@@ -40,7 +35,9 @@ async function bomber() {
     ig.state.userAgent = `Instagram ${device.app_version} Android (34/15.0.0; 480dpi; 1080x2340; ${device.phone_manufacturer}; ${device.phone_model}; raven; raven; en_US)`;
 
     try {
-        await ig.session.importSession(cfg.sessionid);
+        // Fixed login with sessionid (set cookie)
+        ig.state.sessionCookies = [{ key: 'sessionid', value: cfg.sessionid }];
+        await ig.account.currentUser(); // Check if logged in
         log("LOGIN SUCCESS — BOMBING SHURU");
     } catch (e) {
         log(`LOGIN FAILED → ${e.message.substring(0, 80)}`);
