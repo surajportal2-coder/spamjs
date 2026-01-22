@@ -4,8 +4,6 @@ const { IgApiClient } = require('instagram-private-api');
 const bodyParser = require('body-parser');
 
 const app = express();
-
-// Body parsers (FormData aur JSON dono support)
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'templates')));
@@ -38,7 +36,7 @@ async function bomber() {
 
     try {
         await ig.session.importSession(cfg.sessionid);
-        log("LOGIN SUCCESS — SPAM SHURU");
+        log("LOGIN SUCCESS — BOMBING SHURU");
     } catch (e) {
         log(`LOGIN FAILED → ${e.message.substring(0, 80)}`);
         state.running = false;
