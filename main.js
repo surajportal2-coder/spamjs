@@ -1,9 +1,14 @@
 const express = require('express');
 const path = require('path');
 const { IgApiClient } = require('instagram-private-api');
+const multer = require('multer');
 const bodyParser = require('body-parser');
 
 const app = express();
+
+// Multer for FormData
+const upload = multer();
+app.use(upload.none()); // FormData parse karne ke liye
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'templates')));
